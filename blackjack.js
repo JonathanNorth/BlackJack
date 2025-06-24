@@ -163,7 +163,6 @@ function deal(player){
     let cardImg = document.createElement("img");
     let card = deck.pop();
     cardImg.src = "./cards/" + card + ".png"
-    console.log(player.type + ": " + player.sum + " = " + player.sum + " + "+ getValue(card) + " which is " + parseInt(player.sum + getValue(card)));
     player.sum += getValue(card);
     player.aceCount += checkAce(card);
     document.getElementById(player.cardImgId).append(cardImg);
