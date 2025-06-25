@@ -70,18 +70,8 @@ function shuffleDeck(){
 
 function startGame() {
 
-    dealer.hiddenCard = deck.pop();
-    dealer.sum += getValue(dealer.hiddenCard);
-    dealer.aceCount += checkAce(dealer.hiddenCard);
-    
-    deal(dealer);
-    document.getElementById(dealer.sumId).innerText = dealer.sum - getValue(dealer.hiddenCard);
-    
-
-    for(let i=0; i < 2; i++){
-        deal(user);
-    }
-
+    dealInitialHands();
+   
     document.getElementById("hit").addEventListener("click", hit);
     document.getElementById("stay").addEventListener("click", stay);
  
@@ -126,36 +116,20 @@ function hit(){
 }
 
 
-
 function stay(){
 
     dealOutDealer();
     dealer.reduceAce();
     user.reduceAce();
 
-   
+    //reveal hidden card
     document.getElementById("hidden").src = "./cards/" + dealer.hiddenCard + ".png";
 
     dealer.updateSum();
     user.updateSum();
 
-    let yourSum = user.sum;
-    let dealerSum = dealer.sum; 
-    
-    let message = "";
-    if(yourSum > 21)
-        message = "Bust";
-    else if (dealerSum > 21)
-        message = "You Win";
-    else if (dealerSum === 21 || dealerSum >= yourSum)
-        message = "You Lose";
-    else
-        message = "You Win";
-
-    document.getElementById("hit").disabled = true;
-    document.getElementById("stay").disabled = true;
-    document.getElementById("results").innerText = message;
-    document.getElementById("try-again").style.display = "inline";
+    updateResultsMessage();    
+    updateButtonsStay();
     
 }
 
@@ -170,7 +144,46 @@ function deal(player){
 }
 
 function dealOutDealer(){
-    while(dealer.sum < 17 && dealer.sum < user.sum){
+    while(dealer.sum < 17 && dealer.sum < user.sum && user.sum <= 21){
         deal(dealer);
     }
+}
+
+
+function dealInitialHands(){
+    
+    dealer.hiddenCard = deck.pop();
+    dealer.sum += getValue(dealer.hiddenCard);
+    dealer.aceCount += checkAce(dealer.hiddenCard);
+    
+    deal(dealer);
+    document.getElementById(dealer.sumId).innerText = dealer.sum - getValue(dealer.hiddenCard);
+    deal(user);
+    deal(user);
+}
+
+function updateResultsMessage(){
+    let yourSum = user.sum;
+    let dealerSum = dealer.sum; 
+    let message = "";
+    
+    if(yourSum > 21)
+        message = "Bust";
+    else if (dealerSum > 21)
+        message = "You Win";
+    else if (dealerSum === 21 || dealerSum >= yourSum)
+        message = "You Lose";
+    else
+        message = "You Win";
+
+    
+    document.getElementById("results").innerText = message;
+
+
+}
+
+function updateButtonsStay(){
+    document.getElementById("hit").disabled = true;
+    document.getElementById("stay").disabled = true;
+    document.getElementById("try-again").style.display = "inline";
 }
