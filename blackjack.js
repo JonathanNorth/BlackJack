@@ -6,11 +6,15 @@ class Player {
         this.aceCount = 0;
         this.cardImgId = type + "-cards"; 
     }
-    reduceAce(sum, aceCount){
-        while(sum > 21 && aceCount > 0){
-            sum -= 10;
-            aceCount--;
+    reduceAce(){
+        while(this.sum > 21 && this.aceCount > 0){
+            this.sum -= 10;
+            this.aceCount--;
         }
+    }
+    updateSum(){
+        document.getElementById(this.sumId).innerText = this.sum;
+        this.reduceAce();
     }
 }
 
@@ -33,10 +37,7 @@ class User extends Player {
 
 const dealer = new Dealer();
 const user = new User();
-
-
 let deck;
-let canHit = true;
 
 window.onload = function (){
     
@@ -55,8 +56,6 @@ function buildDeck() {
             deck.push(values[j] + "-" + types[i]);
         }
     }
-    
-    
 }
 
 function shuffleDeck(){
@@ -85,6 +84,7 @@ function startGame() {
 
     document.getElementById("hit").addEventListener("click", hit);
     document.getElementById("stay").addEventListener("click", stay);
+ 
 
 }
 
@@ -113,18 +113,13 @@ function checkAce(card){
 }
 
 function hit(){
-
-    if(!canHit)
-            return;
-
     
     deal(user);
   
-
     if( user.sum > 21) {
         user.reduceAce();
         if(user.sum > 21){
-            canHit = false;
+            stay();
         }
     }
         
@@ -133,14 +128,16 @@ function hit(){
 
 
 function stay(){
+
+    dealOutDealer();
     dealer.reduceAce();
     user.reduceAce();
 
-    canHit = false;
+   
     document.getElementById("hidden").src = "./cards/" + dealer.hiddenCard + ".png";
 
-    document.getElementById(dealer.sumId).innerText = dealer.sum;
-    document.getElementById(user.sumId).innerText = user.sum;
+    dealer.updateSum();
+    user.updateSum();
 
     let yourSum = user.sum;
     let dealerSum = dealer.sum; 
@@ -155,7 +152,10 @@ function stay(){
     else
         message = "You Win";
 
+    document.getElementById("hit").disabled = true;
+    document.getElementById("stay").disabled = true;
     document.getElementById("results").innerText = message;
+    document.getElementById("try-again").style.display = "inline";
     
 }
 
@@ -166,5 +166,11 @@ function deal(player){
     player.sum += getValue(card);
     player.aceCount += checkAce(card);
     document.getElementById(player.cardImgId).append(cardImg);
-    document.getElementById(player.sumId).innerText = player.sum;
+    player.updateSum();
+}
+
+function dealOutDealer(){
+    while(dealer.sum < 17 && dealer.sum < user.sum){
+        deal(dealer);
+    }
 }
